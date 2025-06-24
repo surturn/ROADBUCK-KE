@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { WhatsAppChat } from '@/components/chat/WhatsAppChat';
 import { Mail, Phone, MapPin, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -16,6 +17,9 @@ export const Contact: React.FC = () => {
     phone: '',
     message: ''
   });
+
+  // TODO: Replace with your actual WhatsApp business number
+  const whatsappNumber = '254700000000'; // Replace this with your actual WhatsApp business number
 
   const handleLanguageChange = (lang: 'en' | 'sw') => {
     setCurrentLanguage(lang);
@@ -160,8 +164,15 @@ export const Contact: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* Contact Information */}
+            {/* Contact Information and WhatsApp */}
             <div className="space-y-6">
+              {/* WhatsApp Chat Component */}
+              <WhatsAppChat 
+                phoneNumber={whatsappNumber}
+                currentLanguage={currentLanguage}
+              />
+
+              {/* Contact Information */}
               <Card>
                 <CardHeader>
                   <CardTitle>{t.info.title}</CardTitle>
