@@ -39,9 +39,9 @@ export const AddProductForm: React.FC = () => {
       const { error } = await supabase
         .from('products')
         .insert({
-          name: formData.name,
-          description: formData.description || null,
-          type: formData.type || null
+          Name: formData.name,
+          Description: formData.description || null,
+          Type: formData.type || null
         });
 
       if (error) {

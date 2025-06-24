@@ -118,14 +118,9 @@ export const BulkProductImport: React.FC = () => {
         const { data, error } = await supabase
           .from('products')
           .insert({
-            name: product.name,
-            category: product.category,
-            price: product.price,
-            description: product.description || null,
-            features: Array.isArray(product.features) ? product.features : 
-                     (product.features ? [product.features] : null),
-            image_url: product.image_url || null,
-            is_active: product.is_active !== undefined ? product.is_active : true
+            Name: product.name,
+            Type: product.category,
+            Description: product.description || null
           })
           .select()
           .single();
