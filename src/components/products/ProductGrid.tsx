@@ -2,10 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ProductCard } from './ProductCard';
+import { CategoryFilter } from './CategoryFilter';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Search, Filter } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Tables } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
 
@@ -14,17 +14,36 @@ type Product = Tables<'products'>;
 interface ProductGridProps {
   onAddToCart?: (product: Product) => void;
   onViewDetails?: (product: Product) => void;
+  currentLanguage?: 'en' | 'sw';
 }
 
 export const ProductGrid: React.FC<ProductGridProps> = ({
   onAddToCart,
-  onViewDetails
+  onViewDetails,
+  currentLanguage = 'en'
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [categories, setCategories] = useState<string[]>([]);
+
+  const translations = {
+    en: {
+      searchPlaceholder: 'Search products...',
+      noProducts: 'No products found',
+      refreshProducts: 'Refresh Products',
+      loadingProducts: 'Loading products...'
+    },
+    sw: {
+      searchPlaceholder: 'Tafuta bidhaa...',
+      noProducts: 'Hakuna bidhaa zilizopatikana',
+      refreshProducts: 'Onyesha Bidhaa Upya',
+      loadingProducts: 'Inapakia bidhaa...'
+    }
+  };
+
+  const t = translations[currentLanguage];
 
   useEffect(() => {
     fetchProducts();
@@ -42,14 +61,14 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
       if (error) {
         console.error('Error fetching products:', error);
-        toast.error('Failed to load products');
+        toast.error(currentLanguage === 'en' ? 'Failed to load products' : 'Imeshindwa kupakia bidhaa');
         return;
       }
 
       setProducts(data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
-      toast.error('Failed to load products');
+      toast.error(currentLanguage === 'en' ? 'Failed to load products' : 'Imeshindwa kupakia bidhaa');
     } finally {
       setLoading(false);
     }
@@ -67,7 +86,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
         return;
       }
 
-      const uniqueCategories = [...new Set(data.map(item => item.category))];
+      const uniqueCategories = [...new Set(data.map(item => item.category))].filter(Boolean);
       setCategories(uniqueCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -86,56 +105,52 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {[...Array(8)].map((_, index) => (
-          <div key={index} className="animate-pulse">
-            <div className="bg-gray-200 h-64 rounded-lg mb-4"></div>
-            <div className="bg-gray-200 h-4 rounded mb-2"></div>
-            <div className="bg-gray-200 h-4 rounded w-3/4"></div>
-          </div>
-        ))}
+      <div className="space-y-6">
+        <div className="text-center py-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <p className="text-gray-600">{t.loadingProducts}</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[...Array(8)].map((_, index) => (
+            <div key={index} className="animate-pulse">
+              <div className="bg-gray-200 h-64 rounded-lg mb-4"></div>
+              <div className="bg-gray-200 h-4 rounded mb-2"></div>
+              <div className="bg-gray-200 h-4 rounded w-3/4"></div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Search and Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            placeholder="Search products..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        
-        <div className="flex gap-2">
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-48">
-              <Filter className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="All Categories" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {categories.map(category => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      {/* Search Bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+        <Input
+          placeholder={t.searchPlaceholder}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
       </div>
+
+      {/* Category Filter */}
+      <CategoryFilter
+        categories={categories}
+        selectedCategory={categoryFilter}
+        onCategoryChange={setCategoryFilter}
+        productCount={filteredProducts.length}
+        currentLanguage={currentLanguage}
+      />
 
       {/* Products Grid */}
       {filteredProducts.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No products found</p>
+          <p className="text-gray-500 text-lg">{t.noProducts}</p>
           <Button onClick={fetchProducts} className="mt-4">
-            Refresh Products
+            {t.refreshProducts}
           </Button>
         </div>
       ) : (

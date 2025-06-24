@@ -60,6 +60,7 @@ export const Products: React.FC = () => {
           <ProductGrid 
             onAddToCart={handleAddToCart}
             onViewDetails={handleViewDetails}
+            currentLanguage={currentLanguage}
           />
         </div>
       </main>
