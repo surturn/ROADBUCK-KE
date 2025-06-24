@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,14 +28,14 @@ export const DocumentsList: React.FC<DocumentsListProps> = ({ currentLanguage })
     }
   });
 
-  const handleDownload = (document: Document) => {
+  const handleDownload = (doc: Document) => {
     try {
-      const link = document.createElement('a');
-      link.href = document.file_url;
-      link.download = document.file_name;
-      document.body.appendChild(link);
+      const link = window.document.createElement('a');
+      link.href = doc.file_url;
+      link.download = doc.file_name;
+      window.document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      window.document.body.removeChild(link);
       toast.success(currentLanguage === 'en' ? 'Download started' : 'Upakuzi umeanza');
     } catch (error) {
       toast.error(currentLanguage === 'en' ? 'Download failed' : 'Upakuzi umeshindwa');
