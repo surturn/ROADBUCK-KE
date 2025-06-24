@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
@@ -11,13 +12,7 @@ import { toast } from 'sonner';
 type Product = Tables<'products'>;
 
 export const Home: React.FC = () => {
-  const [cartItems, setCartItems] = useState<Product[]>([]);
   const [currentLanguage, setCurrentLanguage] = useState<'en' | 'sw'>('en');
-
-  const handleAddToCart = (product: Product) => {
-    setCartItems(prev => [...prev, product]);
-    toast.success(`${product.name} added to cart`);
-  };
 
   const handleViewDetails = (product: Product) => {
     toast.info('Product details feature coming soon!');
@@ -102,7 +97,7 @@ export const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header 
-        cartItemCount={cartItems.length}
+        cartItemCount={0}
         currentLanguage={currentLanguage}
         onLanguageChange={handleLanguageChange}
       />
@@ -158,8 +153,8 @@ export const Home: React.FC = () => {
             </h2>
             
             <ProductGrid 
-              onAddToCart={handleAddToCart}
               onViewDetails={handleViewDetails}
+              currentLanguage={currentLanguage}
             />
           </div>
         </section>
