@@ -3,17 +3,18 @@ import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { ProductGrid } from '@/components/products/ProductGrid';
 import { BulkProductImport } from '@/components/products/BulkProductImport';
+import { AddProductForm } from '@/components/products/AddProductForm';
 import { Button } from '@/components/ui/button';
 import { Tables } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
-import { Upload, Grid } from 'lucide-react';
+import { Upload, Grid, Plus } from 'lucide-react';
 
 type Product = Tables<'products'>;
 
 export const Products: React.FC = () => {
   const [cartItems, setCartItems] = useState<Product[]>([]);
   const [currentLanguage, setCurrentLanguage] = useState<'en' | 'sw'>('en');
-  const [showImport, setShowImport] = useState(false);
+  const [activeView, setActiveView] = useState<'products' | 'import' | 'add'>('products');
 
   const handleAddToCart = (product: Product) => {
     setCartItems(prev => [...prev, product]);
@@ -34,13 +35,15 @@ export const Products: React.FC = () => {
       title: 'Our Products',
       subtitle: 'Browse our complete catalog of quality automotive parts',
       importProducts: 'Import Products',
-      viewProducts: 'View Products'
+      viewProducts: 'View Products',
+      addProduct: 'Add Product'
     },
     sw: {
       title: 'Bidhaa Zetu',
       subtitle: 'Angalia katalogi yetu kamili ya vipengee vya ubora vya magari',
       importProducts: 'Leta Bidhaa',
-      viewProducts: 'Angalia Bidhaa'
+      viewProducts: 'Angalia Bidhaa',
+      addProduct: 'Ongeza Bidhaa'
     }
   };
 
@@ -64,35 +67,43 @@ export const Products: React.FC = () => {
               {t.subtitle}
             </p>
             
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-center gap-4 flex-wrap">
               <Button
-                onClick={() => setShowImport(!showImport)}
-                variant={showImport ? "default" : "outline"}
-                className="flex items-center gap-2"
-              >
-                <Upload className="h-4 w-4" />
-                {t.importProducts}
-              </Button>
-              <Button
-                onClick={() => setShowImport(false)}
-                variant={!showImport ? "default" : "outline"}
+                onClick={() => setActiveView('products')}
+                variant={activeView === 'products' ? "default" : "outline"}
                 className="flex items-center gap-2"
               >
                 <Grid className="h-4 w-4" />
                 {t.viewProducts}
               </Button>
+              <Button
+                onClick={() => setActiveView('add')}
+                variant={activeView === 'add' ? "default" : "outline"}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                {t.addProduct}
+              </Button>
+              <Button
+                onClick={() => setActiveView('import')}
+                variant={activeView === 'import' ? "default" : "outline"}
+                className="flex items-center gap-2"
+              >
+                <Upload className="h-4 w-4" />
+                {t.importProducts}
+              </Button>
             </div>
           </div>
           
-          {showImport ? (
-            <BulkProductImport />
-          ) : (
+          {activeView === 'products' && (
             <ProductGrid 
               onAddToCart={handleAddToCart}
               onViewDetails={handleViewDetails}
               currentLanguage={currentLanguage}
             />
           )}
+          {activeView === 'add' && <AddProductForm />}
+          {activeView === 'import' && <BulkProductImport />}
         </div>
       </main>
     </div>
