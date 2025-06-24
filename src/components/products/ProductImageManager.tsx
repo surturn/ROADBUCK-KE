@@ -11,7 +11,11 @@ import { toast } from 'sonner';
 
 type Product = Tables<'products'>;
 
-export const ProductImageManager: React.FC = () => {
+interface ProductImageManagerProps {
+  onImageUpdated?: () => void;
+}
+
+export const ProductImageManager: React.FC<ProductImageManagerProps> = ({ onImageUpdated }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -49,6 +53,13 @@ export const ProductImageManager: React.FC = () => {
         : product
     ));
     setSelectedProduct(null);
+    
+    // Notify parent component that an image was updated
+    if (onImageUpdated) {
+      onImageUpdated();
+    }
+    
+    toast.success('Image uploaded and product updated successfully!');
   };
 
   const filteredProducts = products.filter(product =>

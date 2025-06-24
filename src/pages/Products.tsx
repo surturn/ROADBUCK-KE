@@ -15,6 +15,7 @@ type Product = Tables<'products'>;
 export const Products: React.FC = () => {
   const [currentLanguage, setCurrentLanguage] = useState<'en' | 'sw'>('en');
   const [activeView, setActiveView] = useState<'products' | 'import' | 'add' | 'images'>('products');
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleViewDetails = (product: Product) => {
     toast.info('Product details feature coming soon!');
@@ -23,6 +24,19 @@ export const Products: React.FC = () => {
   const handleLanguageChange = (lang: 'en' | 'sw') => {
     setCurrentLanguage(lang);
     toast.success(`Language changed to ${lang === 'en' ? 'English' : 'Kiswahili'}`);
+  };
+
+  const handleImageUpdated = () => {
+    // Force refresh of the product grid when an image is updated
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleViewChange = (view: 'products' | 'import' | 'add' | 'images') => {
+    setActiveView(view);
+    // If switching back to products view, refresh the data
+    if (view === 'products') {
+      setRefreshKey(prev => prev + 1);
+    }
   };
 
   const translations = {
@@ -66,7 +80,7 @@ export const Products: React.FC = () => {
             
             <div className="flex justify-center gap-4 flex-wrap">
               <Button
-                onClick={() => setActiveView('products')}
+                onClick={() => handleViewChange('products')}
                 variant={activeView === 'products' ? "default" : "outline"}
                 className="flex items-center gap-2"
               >
@@ -74,7 +88,7 @@ export const Products: React.FC = () => {
                 {t.viewProducts}
               </Button>
               <Button
-                onClick={() => setActiveView('add')}
+                onClick={() => handleViewChange('add')}
                 variant={activeView === 'add' ? "default" : "outline"}
                 className="flex items-center gap-2"
               >
@@ -82,7 +96,7 @@ export const Products: React.FC = () => {
                 {t.addProduct}
               </Button>
               <Button
-                onClick={() => setActiveView('images')}
+                onClick={() => handleViewChange('images')}
                 variant={activeView === 'images' ? "default" : "outline"}
                 className="flex items-center gap-2"
               >
@@ -90,7 +104,7 @@ export const Products: React.FC = () => {
                 {t.manageImages}
               </Button>
               <Button
-                onClick={() => setActiveView('import')}
+                onClick={() => handleViewChange('import')}
                 variant={activeView === 'import' ? "default" : "outline"}
                 className="flex items-center gap-2"
               >
@@ -102,12 +116,15 @@ export const Products: React.FC = () => {
           
           {activeView === 'products' && (
             <ProductGrid 
+              key={refreshKey}
               onViewDetails={handleViewDetails}
               currentLanguage={currentLanguage}
             />
           )}
           {activeView === 'add' && <AddProductForm />}
-          {activeView === 'images' && <ProductImageManager />}
+          {activeView === 'images' && (
+            <ProductImageManager onImageUpdated={handleImageUpdated} />
+          )}
           {activeView === 'import' && <BulkProductImport />}
         </div>
       </main>
