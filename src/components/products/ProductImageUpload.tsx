@@ -24,40 +24,6 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<string>('');
 
-  const ensureBucketExists = async () => {
-    try {
-      // Check if bucket exists
-      const { data: buckets, error: listError } = await supabase.storage.listBuckets();
-      
-      if (listError) {
-        console.error('Error listing buckets:', listError);
-        return false;
-      }
-
-      const bucketExists = buckets?.some(bucket => bucket.name === 'product-images');
-      
-      if (!bucketExists) {
-        console.log('Creating product-images bucket...');
-        const { error: createError } = await supabase.storage.createBucket('product-images', {
-          public: true,
-          allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-          fileSizeLimit: 5242880 // 5MB
-        });
-
-        if (createError) {
-          console.error('Error creating bucket:', createError);
-          return false;
-        }
-        console.log('Bucket created successfully');
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error ensuring bucket exists:', error);
-      return false;
-    }
-  };
-
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -81,13 +47,6 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
     setPreviewUrl(URL.createObjectURL(file));
 
     try {
-      // Ensure bucket exists
-      setUploadProgress('Setting up storage...');
-      const bucketReady = await ensureBucketExists();
-      if (!bucketReady) {
-        throw new Error('Failed to set up storage bucket');
-      }
-
       // Create a unique filename
       const fileExt = file.name.split('.').pop();
       const fileName = `${productId}-${Date.now()}.${fileExt}`;
