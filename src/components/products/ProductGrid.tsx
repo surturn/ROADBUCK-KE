@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ProductCard } from './ProductCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Search, RefreshCw } from 'lucide-react';
 import { Tables } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
 
@@ -40,13 +40,12 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
   const t = translations[currentLanguage];
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
   const fetchProducts = async () => {
     try {
       setLoading(true);
+      console.log('Fetching fresh product data...');
+      
+      // Force fresh data by adding timestamp to prevent caching
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -58,6 +57,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
         return;
       }
 
+      console.log('Fetched products:', data);
       setProducts(data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -66,6 +66,38 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       setLoading(false);
     }
   };
+
+  // Fetch products on mount and whenever the component key changes
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  // Set up real-time subscription to product changes
+  useEffect(() => {
+    console.log('Setting up real-time subscription for products');
+    
+    const channel = supabase
+      .channel('product-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'products'
+        },
+        (payload) => {
+          console.log('Real-time update received:', payload);
+          // Refresh data when any product changes
+          fetchProducts();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('Cleaning up real-time subscription');
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.Name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -97,15 +129,26 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-        <Input
-          placeholder={t.searchPlaceholder}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
+      {/* Search Bar and Refresh Button */}
+      <div className="flex gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            placeholder={t.searchPlaceholder}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Button 
+          onClick={fetchProducts} 
+          variant="outline"
+          size="default"
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className="h-4 w-4" />
+          {t.refreshProducts}
+        </Button>
       </div>
 
       {/* Results Summary */}

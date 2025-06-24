@@ -21,13 +21,11 @@ export const ProductImageManager: React.FC<ProductImageManagerProps> = ({ onImag
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
   const fetchProducts = async () => {
     try {
       setLoading(true);
+      console.log('Fetching products for image manager...');
+      
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -39,7 +37,7 @@ export const ProductImageManager: React.FC<ProductImageManagerProps> = ({ onImag
         return;
       }
 
-      console.log('Fetched products:', data);
+      console.log('Fetched products for image manager:', data);
       setProducts(data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -48,6 +46,10 @@ export const ProductImageManager: React.FC<ProductImageManagerProps> = ({ onImag
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const handleImageUploaded = async (productId: string, imageUrl: string) => {
     console.log('Image uploaded for product:', productId, 'URL:', imageUrl);
@@ -69,10 +71,10 @@ export const ProductImageManager: React.FC<ProductImageManagerProps> = ({ onImag
       onImageUpdated();
     }
     
-    // Refresh products data to make sure we have the latest
+    // Fetch fresh data to ensure consistency
     await fetchProducts();
     
-    toast.success('Image uploaded and product updated successfully!');
+    toast.success('Image uploaded and saved successfully!');
   };
 
   const filteredProducts = products.filter(product =>

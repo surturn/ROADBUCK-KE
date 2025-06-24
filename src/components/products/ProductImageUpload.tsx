@@ -24,12 +24,46 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<string>('');
 
+  const ensureBucketExists = async () => {
+    try {
+      // Check if bucket exists
+      const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+      
+      if (listError) {
+        console.error('Error listing buckets:', listError);
+        return false;
+      }
+
+      const bucketExists = buckets?.some(bucket => bucket.name === 'product-images');
+      
+      if (!bucketExists) {
+        console.log('Creating product-images bucket...');
+        const { error: createError } = await supabase.storage.createBucket('product-images', {
+          public: true,
+          allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+          fileSizeLimit: 5242880 // 5MB
+        });
+
+        if (createError) {
+          console.error('Error creating bucket:', createError);
+          return false;
+        }
+        console.log('Bucket created successfully');
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error ensuring bucket exists:', error);
+      return false;
+    }
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     console.log('Starting file upload for:', file.name, 'Size:', file.size);
-    setUploadProgress('Starting upload...');
+    setUploadProgress('Preparing upload...');
 
     // Check file type
     if (!file.type.startsWith('image/')) {
@@ -47,20 +81,27 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
     setPreviewUrl(URL.createObjectURL(file));
 
     try {
+      // Ensure bucket exists
+      setUploadProgress('Setting up storage...');
+      const bucketReady = await ensureBucketExists();
+      if (!bucketReady) {
+        throw new Error('Failed to set up storage bucket');
+      }
+
       // Create a unique filename
       const fileExt = file.name.split('.').pop();
       const fileName = `${productId}-${Date.now()}.${fileExt}`;
-      const filePath = `products/${fileName}`;
+      const filePath = `${fileName}`;
 
       console.log('Uploading file to path:', filePath);
-      setUploadProgress('Uploading to storage...');
+      setUploadProgress('Uploading image...');
 
       // Upload file to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('product-images')
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: true // Allow overwriting existing files
         });
 
       console.log('Upload result:', { data: uploadData, error: uploadError });
@@ -80,9 +121,13 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
       const imageUrl = data.publicUrl;
       console.log('Generated public URL:', imageUrl);
 
-      setUploadProgress('Updating database...');
+      if (!imageUrl) {
+        throw new Error('Failed to generate public URL');
+      }
 
-      // Update product in database
+      setUploadProgress('Saving to database...');
+
+      // Update product in database with the new image URL
       const { error: updateError } = await supabase
         .from('products')
         .update({ Image_url: imageUrl })
@@ -93,10 +138,10 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
         throw updateError;
       }
 
-      console.log('Successfully updated product with image URL');
+      console.log('Successfully updated product with image URL:', imageUrl);
       setUploadProgress('Upload complete!');
       
-      toast.success('Image uploaded successfully!');
+      toast.success('Image uploaded and saved successfully!');
       onImageUploaded(imageUrl);
       
       // Clear preview after successful upload
@@ -133,7 +178,7 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
           {currentImageUrl && (
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm font-medium mb-2">Current Image:</p>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 mb-2">
                 <a 
                   href={currentImageUrl} 
                   target="_blank" 
@@ -143,16 +188,15 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
                   View current image <ExternalLink className="h-3 w-3 ml-1" />
                 </a>
               </div>
-              <div className="mt-2 w-32 h-32 bg-white border rounded">
+              <div className="w-32 h-32 bg-white border rounded">
                 <img 
                   src={currentImageUrl} 
                   alt="Current product" 
                   className="w-full h-full object-cover rounded"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src = '';
-                    target.alt = 'Failed to load current image';
-                    target.className = 'w-full h-full flex items-center justify-center text-gray-400 text-xs';
+                    target.style.display = 'none';
+                    target.parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400 text-xs">Failed to load</div>';
                   }}
                 />
               </div>
@@ -184,12 +228,9 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
             ) : (
               <div>
                 <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-lg font-medium mb-2">Upload New Product Image</p>
+                <p className="text-lg font-medium mb-2">Upload Product Image</p>
                 <p className="text-sm text-gray-600 mb-4">
                   JPG, PNG, WebP, or GIF. Maximum size 5MB.
-                </p>
-                <p className="text-xs text-gray-500 mb-4">
-                  Image will be stored securely and a public URL will be generated automatically.
                 </p>
               </div>
             )}
