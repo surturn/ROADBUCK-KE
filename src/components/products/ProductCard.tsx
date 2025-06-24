@@ -18,17 +18,8 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({
   product,
   onAddToCart,
-  onViewDetails,
-  currency = 'KES'
+  onViewDetails
 }) => {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 0
-    }).format(price);
-  };
-
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="p-4">
@@ -76,10 +67,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </div>
           </div>
         )}
-        
-        <div className="text-xl font-bold text-blue-600">
-          {formatPrice(Number(product.price))}
-        </div>
       </CardContent>
       
       <CardFooter className="p-4 pt-0 space-x-2">

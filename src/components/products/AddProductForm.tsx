@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +13,6 @@ export const AddProductForm: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     category: '',
-    price: '',
     description: '',
     features: '',
     image_url: ''
@@ -124,14 +124,8 @@ export const AddProductForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.category || !formData.price) {
-      toast.error('Please fill in all required fields (Name, Category, Price)');
-      return;
-    }
-
-    const price = parseFloat(formData.price);
-    if (isNaN(price) || price <= 0) {
-      toast.error('Please enter a valid price');
+    if (!formData.name || !formData.category) {
+      toast.error('Please fill in all required fields (Name, Category)');
       return;
     }
 
@@ -160,7 +154,7 @@ export const AddProductForm: React.FC = () => {
         .insert({
           name: formData.name,
           category: formData.category,
-          price: price,
+          price: 0, // Set default price to 0
           description: formData.description || null,
           features: features,
           image_url: imageUrl || null,
@@ -175,7 +169,6 @@ export const AddProductForm: React.FC = () => {
         setFormData({
           name: '',
           category: '',
-          price: '',
           description: '',
           features: '',
           image_url: ''
@@ -224,32 +217,16 @@ export const AddProductForm: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="price">Price (KES) *</Label>
-              <Input
-                id="price"
-                name="price"
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.price}
-                onChange={handleInputChange}
-                placeholder="0.00"
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="image_url">Image URL (Optional)</Label>
-              <Input
-                id="image_url"
-                name="image_url"
-                value={formData.image_url}
-                onChange={handleInputChange}
-                placeholder="https://example.com/image.jpg"
-                disabled={!!selectedFile}
-              />
-            </div>
+          <div>
+            <Label htmlFor="image_url">Image URL (Optional)</Label>
+            <Input
+              id="image_url"
+              name="image_url"
+              value={formData.image_url}
+              onChange={handleInputChange}
+              placeholder="https://example.com/image.jpg"
+              disabled={!!selectedFile}
+            />
           </div>
 
           <div>
