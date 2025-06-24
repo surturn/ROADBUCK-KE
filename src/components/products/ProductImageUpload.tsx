@@ -27,6 +27,8 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
+    console.log('Starting file upload for:', file.name, 'Size:', file.size);
+
     // Check file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please upload an image file');
@@ -48,12 +50,21 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
       const fileName = `${productId}-${Date.now()}.${fileExt}`;
       const filePath = `products/${fileName}`;
 
-      // Upload file to Supabase Storage
-      const { error: uploadError } = await supabase.storage
+      console.log('Uploading file to path:', filePath);
+      console.log('File details:', { name: fileName, type: file.type, size: file.size });
+
+      // Upload file to Supabase Storage with explicit options
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from('product-images')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      console.log('Upload result:', { data: uploadData, error: uploadError });
 
       if (uploadError) {
+        console.error('Upload error details:', uploadError);
         throw uploadError;
       }
 
@@ -63,6 +74,7 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
         .getPublicUrl(filePath);
 
       const imageUrl = data.publicUrl;
+      console.log('Generated public URL:', imageUrl);
 
       // Update product in database
       const { error: updateError } = await supabase
@@ -71,14 +83,28 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
         .eq('id', productId);
 
       if (updateError) {
+        console.error('Database update error:', updateError);
         throw updateError;
       }
 
+      console.log('Successfully updated product with image URL');
       toast.success('Image uploaded successfully!');
       onImageUploaded(imageUrl);
     } catch (error) {
-      console.error('Error uploading image:', error);
-      toast.error(`Failed to upload image: ${error}`);
+      console.error('Complete error object:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      });
+      
+      let errorMessage = 'Failed to upload image';
+      if (error.message) {
+        errorMessage += `: ${error.message}`;
+      }
+      
+      toast.error(errorMessage);
       setPreviewUrl(null);
     } finally {
       setUploading(false);
