@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Truck, Shield, Users, Globe } from 'lucide-react';
+import { Truck, Shield, Users, Globe, Mail, Phone } from 'lucide-react';
 
 export const About: React.FC = () => {
   const [currentLanguage, setCurrentLanguage] = useState<'en' | 'sw'>('en');
@@ -22,6 +22,40 @@ export const About: React.FC = () => {
       mission: {
         title: 'Our Mission',
         content: 'To be Kenya\'s leading supplier of quality automotive parts, providing exceptional service and value to our customers while supporting the growth of Kenya\'s automotive industry.'
+      },
+      team: {
+        title: 'Meet Our Team',
+        subtitle: 'The passionate professionals behind ROADBUCK Kenya',
+        members: [
+          {
+            name: 'John Kamau',
+            role: 'Managing Director',
+            bio: 'With over 15 years in the automotive industry, John leads our vision to transform Kenya\'s automotive parts supply chain.',
+            email: 'john@roadbuck.ke',
+            phone: '+254 700 123 456'
+          },
+          {
+            name: 'Sarah Wanjiku',
+            role: 'Head of Operations',
+            bio: 'Sarah ensures smooth operations across all our locations, bringing 10 years of logistics and supply chain expertise.',
+            email: 'sarah@roadbuck.ke',
+            phone: '+254 700 123 457'
+          },
+          {
+            name: 'David Ochieng',
+            role: 'Technical Director',
+            bio: 'David leads our technical team with deep knowledge of automotive systems and parts compatibility.',
+            email: 'david@roadbuck.ke',
+            phone: '+254 700 123 458'
+          },
+          {
+            name: 'Grace Njeri',
+            role: 'Customer Relations Manager',
+            bio: 'Grace ensures every customer receives exceptional service and support throughout their journey with us.',
+            email: 'grace@roadbuck.ke',
+            phone: '+254 700 123 459'
+          }
+        ]
       },
       values: [
         {
@@ -56,6 +90,40 @@ export const About: React.FC = () => {
       mission: {
         title: 'Dhamira Yetu',
         content: 'Kuwa msambazaji mkuu wa Kenya wa vipengee vya ubora vya magari, kutoa huduma bora na thamani kwa wateja wetu huku tukiunga mkono ukuaji wa tasnia ya magari ya Kenya.'
+      },
+      team: {
+        title: 'Kutana na Timu Yetu',
+        subtitle: 'Wataalamu wenye shauku nyuma ya ROADBUCK Kenya',
+        members: [
+          {
+            name: 'John Kamau',
+            role: 'Mkurugenzi Mkuu',
+            bio: 'Akiwa na uzoefu wa zaidi ya miaka 15 katika tasnia ya magari, John anaongoza maono yetu ya kubadilisha mnyororo wa ugavi wa vipengee vya magari Kenya.',
+            email: 'john@roadbuck.ke',
+            phone: '+254 700 123 456'
+          },
+          {
+            name: 'Sarah Wanjiku',
+            role: 'Mkuu wa Shughuli',
+            bio: 'Sarah anahakikisha shughuli za uongozi katika maeneo yetu yote, akileta uzoefu wa miaka 10 wa mizigo na mnyororo wa ugavi.',
+            email: 'sarah@roadbuck.ke',
+            phone: '+254 700 123 457'
+          },
+          {
+            name: 'David Ochieng',
+            role: 'Mkurugenzi wa Kiufundi',
+            bio: 'David anaongoza timu yetu ya kiufundi na maarifa makubwa ya mifumo ya magari na ulinganifu wa vipengee.',
+            email: 'david@roadbuck.ke',
+            phone: '+254 700 123 458'
+          },
+          {
+            name: 'Grace Njeri',
+            role: 'Meneja wa Mahusiano ya Wateja',
+            bio: 'Grace anahakikisha kila mteja anapokea huduma bora na msaada katika safari yao nasi.',
+            email: 'grace@roadbuck.ke',
+            phone: '+254 700 123 459'
+          }
+        ]
       },
       values: [
         {
@@ -127,6 +195,40 @@ export const About: React.FC = () => {
                 </p>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Team Section */}
+          <div className="mb-16">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">{t.team.title}</h2>
+              <p className="text-xl text-gray-600">{t.team.subtitle}</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {t.team.members.map((member, index) => (
+                <Card key={index} className="text-center">
+                  <CardHeader>
+                    <div className="w-20 h-20 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                      <Users className="h-10 w-10 text-blue-600" />
+                    </div>
+                    <CardTitle className="text-lg">{member.name}</CardTitle>
+                    <p className="text-blue-600 font-medium">{member.role}</p>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 text-sm mb-4">{member.bio}</p>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-center text-sm text-gray-500">
+                        <Mail className="h-4 w-4 mr-2" />
+                        <span>{member.email}</span>
+                      </div>
+                      <div className="flex items-center justify-center text-sm text-gray-500">
+                        <Phone className="h-4 w-4 mr-2" />
+                        <span>{member.phone}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
 
           {/* Values Section */}

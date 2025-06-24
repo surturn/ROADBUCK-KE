@@ -44,6 +44,7 @@ export const Header: React.FC<HeaderProps> = ({
       products: 'Products',
       about: 'About',
       contact: 'Contact',
+      downloads: 'Downloads',
       signIn: 'Sign In',
       profile: 'Profile',
       orders: 'My Orders',
@@ -54,6 +55,7 @@ export const Header: React.FC<HeaderProps> = ({
       products: 'Bidhaa',
       about: 'Kuhusu',
       contact: 'Mawasiliano',
+      downloads: 'Mipakuzi',
       signIn: 'Ingia',
       profile: 'Wasifu',
       orders: 'Maagizo Yangu',
@@ -83,6 +85,9 @@ export const Header: React.FC<HeaderProps> = ({
             </Link>
             <Link to="/about">
               <Button variant="ghost">{t.about}</Button>
+            </Link>
+            <Link to="/downloads">
+              <Button variant="ghost">{t.downloads}</Button>
             </Link>
             <Link to="/contact">
               <Button variant="ghost">{t.contact}</Button>
