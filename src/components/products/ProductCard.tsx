@@ -40,26 +40,37 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     console.log('Image loaded successfully:', product.Image_url);
   };
 
+  // Check if we have a valid image URL
+  const hasValidImageUrl = product.Image_url && 
+    product.Image_url.trim() !== '' && 
+    (product.Image_url.startsWith('http://') || 
+     product.Image_url.startsWith('https://') ||
+     product.Image_url.startsWith('/'));
+
   return (
     <Card className="h-full flex flex-col">
       {/* Product Image */}
-      {product.Image_url && product.Image_url.trim() !== '' ? (
+      {hasValidImageUrl ? (
         <div className="aspect-video w-full overflow-hidden rounded-t-lg">
           <img
             src={product.Image_url}
             alt={product.Name || 'Product image'}
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
-            crossOrigin="anonymous"
-            referrerPolicy="no-referrer"
             onError={handleImageError}
             onLoad={handleImageLoad}
+            loading="lazy"
           />
         </div>
       ) : (
         <div className="aspect-video w-full bg-gray-100 flex items-center justify-center rounded-t-lg">
           <div className="text-center text-gray-400">
             <Image className="h-12 w-12 mx-auto mb-2" />
-            <p className="text-sm">No image URL provided</p>
+            <p className="text-sm">No image available</p>
+            {product.Image_url && (
+              <p className="text-xs mt-1 px-2">
+                URL: {product.Image_url.substring(0, 30)}...
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -84,8 +95,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         
         {!product.Description && (
           <div className="flex items-center justify-center h-20 text-gray-400">
-            <Info className="h-8 w-8 mb-2" />
-            <p className="text-sm">No description available</p>
+            <div className="text-center">
+              <Info className="h-8 w-8 mx-auto mb-2" />
+              <p className="text-sm">No description available</p>
+            </div>
           </div>
         )}
       </CardContent>
