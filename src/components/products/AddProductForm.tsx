@@ -5,23 +5,17 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Plus, Loader2, Upload, X } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export const AddProductForm: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
-    category: '',
     description: '',
-    features: '',
-    image_url: ''
+    type: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
-  const [isUploading, setIsUploading] = useState(false);
-  const [isDragOver, setIsDragOver] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -31,134 +25,23 @@ export const AddProductForm: React.FC = () => {
     }));
   };
 
-  const validateAndSetFile = (file: File) => {
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
-      return false;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size must be less than 5MB');
-      return false;
-    }
-
-    setSelectedFile(file);
-    
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setImagePreview(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
-    return true;
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    validateAndSetFile(file);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    
-    const files = Array.from(e.dataTransfer.files);
-    const imageFile = files.find(file => file.type.startsWith('image/'));
-    
-    if (imageFile) {
-      validateAndSetFile(imageFile);
-    } else {
-      toast.error('Please drop an image file');
-    }
-  };
-
-  const removeSelectedFile = () => {
-    setSelectedFile(null);
-    setImagePreview('');
-    setFormData(prev => ({ ...prev, image_url: '' }));
-  };
-
-  const uploadImage = async (file: File): Promise<string | null> => {
-    setIsUploading(true);
-    
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `products/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('product-images')
-        .upload(filePath, file);
-
-      if (uploadError) {
-        toast.error(`Upload failed: ${uploadError.message}`);
-        return null;
-      }
-
-      const { data } = supabase.storage
-        .from('product-images')
-        .getPublicUrl(filePath);
-
-      return data.publicUrl;
-    } catch (error) {
-      toast.error(`Upload error: ${error}`);
-      return null;
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.category) {
-      toast.error('Please fill in all required fields (Name, Category)');
+    if (!formData.name) {
+      toast.error('Please fill in the product name');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      let imageUrl = formData.image_url;
-
-      // Upload image if file is selected
-      if (selectedFile) {
-        const uploadedUrl = await uploadImage(selectedFile);
-        if (uploadedUrl) {
-          imageUrl = uploadedUrl;
-        } else {
-          setIsSubmitting(false);
-          return;
-        }
-      }
-
-      const features = formData.features 
-        ? formData.features.split('\n').map(f => f.trim()).filter(Boolean)
-        : null;
-
       const { error } = await supabase
         .from('products')
         .insert({
           name: formData.name,
-          category: formData.category,
-          price: 0, // Set default price to 0
           description: formData.description || null,
-          features: features,
-          image_url: imageUrl || null,
-          is_active: true
+          type: formData.type || null
         });
 
       if (error) {
@@ -168,12 +51,9 @@ export const AddProductForm: React.FC = () => {
         // Reset form
         setFormData({
           name: '',
-          category: '',
           description: '',
-          features: '',
-          image_url: ''
+          type: ''
         });
-        removeSelectedFile();
       }
     } catch (error) {
       toast.error(`Error adding product: ${error}`);
@@ -192,101 +72,27 @@ export const AddProductForm: React.FC = () => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="name">Product Name *</Label>
-              <Input
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="Enter product name"
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="category">Category *</Label>
-              <Input
-                id="category"
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                placeholder="e.g., Engine Parts, Brakes"
-                required
-              />
-            </div>
-          </div>
-
           <div>
-            <Label htmlFor="image_url">Image URL (Optional)</Label>
+            <Label htmlFor="name">Product Name *</Label>
             <Input
-              id="image_url"
-              name="image_url"
-              value={formData.image_url}
+              id="name"
+              name="name"
+              value={formData.name}
               onChange={handleInputChange}
-              placeholder="https://example.com/image.jpg"
-              disabled={!!selectedFile}
+              placeholder="Enter product name"
+              required
             />
           </div>
 
           <div>
-            <Label>Product Image</Label>
-            <div className="space-y-2">
-              {!selectedFile && !imagePreview && (
-                <div 
-                  className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-                    isDragOver 
-                      ? 'border-blue-400 bg-blue-50' 
-                      : 'border-gray-300 hover:border-gray-400'
-                  }`}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                >
-                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600 mb-2">
-                    Drag and drop an image here, or click to select
-                  </p>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    className="max-w-xs mx-auto"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Max size: 5MB</p>
-                </div>
-              )}
-
-              {(imagePreview || formData.image_url) && (
-                <div className="relative">
-                  <img
-                    src={imagePreview || formData.image_url}
-                    alt="Product preview"
-                    className="w-full h-48 object-cover rounded-lg"
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="destructive"
-                    className="absolute top-2 right-2"
-                    onClick={removeSelectedFile}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                  {selectedFile && (
-                    <p className="text-sm text-gray-600 mt-1">
-                      Selected: {selectedFile.name}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {selectedFile && !imagePreview && (
-                <div className="text-center p-4 border rounded-lg">
-                  <p className="text-sm text-gray-600">Ready to upload: {selectedFile.name}</p>
-                </div>
-              )}
-            </div>
+            <Label htmlFor="type">Product Type</Label>
+            <Input
+              id="type"
+              name="type"
+              value={formData.type}
+              onChange={handleInputChange}
+              placeholder="e.g., Engine Parts, Brakes, Electronics"
+            />
           </div>
 
           <div>
@@ -297,32 +103,17 @@ export const AddProductForm: React.FC = () => {
               value={formData.description}
               onChange={handleInputChange}
               placeholder="Enter product description"
-              rows={3}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="features">Features</Label>
-            <Textarea
-              id="features"
-              name="features"
-              value={formData.features}
-              onChange={handleInputChange}
-              placeholder="Enter features, one per line"
               rows={4}
             />
-            <p className="text-sm text-gray-500 mt-1">
-              Enter each feature on a new line
-            </p>
           </div>
 
           <Button 
             type="submit" 
             className="w-full" 
-            disabled={isSubmitting || isUploading}
+            disabled={isSubmitting}
           >
-            {(isSubmitting || isUploading) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            {isUploading ? 'Uploading Image...' : 'Add Product'}
+            {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            Add Product
           </Button>
         </form>
       </CardContent>

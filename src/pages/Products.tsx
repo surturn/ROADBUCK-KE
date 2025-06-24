@@ -12,14 +12,8 @@ import { Upload, Grid, Plus } from 'lucide-react';
 type Product = Tables<'products'>;
 
 export const Products: React.FC = () => {
-  const [cartItems, setCartItems] = useState<Product[]>([]);
   const [currentLanguage, setCurrentLanguage] = useState<'en' | 'sw'>('en');
   const [activeView, setActiveView] = useState<'products' | 'import' | 'add'>('products');
-
-  const handleAddToCart = (product: Product) => {
-    setCartItems(prev => [...prev, product]);
-    toast.success(`${product.name} added to cart`);
-  };
 
   const handleViewDetails = (product: Product) => {
     toast.info('Product details feature coming soon!');
@@ -33,14 +27,14 @@ export const Products: React.FC = () => {
   const translations = {
     en: {
       title: 'Our Products',
-      subtitle: 'Browse our complete catalog of quality automotive parts',
+      subtitle: 'Browse our complete catalog of products',
       importProducts: 'Import Products',
       viewProducts: 'View Products',
       addProduct: 'Add Product'
     },
     sw: {
       title: 'Bidhaa Zetu',
-      subtitle: 'Angalia katalogi yetu kamili ya vipengee vya ubora vya magari',
+      subtitle: 'Angalia katalogi yetu kamili ya bidhaa',
       importProducts: 'Leta Bidhaa',
       viewProducts: 'Angalia Bidhaa',
       addProduct: 'Ongeza Bidhaa'
@@ -52,7 +46,7 @@ export const Products: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header 
-        cartItemCount={cartItems.length}
+        cartItemCount={0}
         currentLanguage={currentLanguage}
         onLanguageChange={handleLanguageChange}
       />
@@ -97,7 +91,6 @@ export const Products: React.FC = () => {
           
           {activeView === 'products' && (
             <ProductGrid 
-              onAddToCart={handleAddToCart}
               onViewDetails={handleViewDetails}
               currentLanguage={currentLanguage}
             />

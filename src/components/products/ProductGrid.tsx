@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ProductCard } from './ProductCard';
-import { CategoryFilter } from './CategoryFilter';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
@@ -12,21 +11,17 @@ import { toast } from 'sonner';
 type Product = Tables<'products'>;
 
 interface ProductGridProps {
-  onAddToCart?: (product: Product) => void;
   onViewDetails?: (product: Product) => void;
   currentLanguage?: 'en' | 'sw';
 }
 
 export const ProductGrid: React.FC<ProductGridProps> = ({
-  onAddToCart,
   onViewDetails,
   currentLanguage = 'en'
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [categories, setCategories] = useState<string[]>([]);
 
   const translations = {
     en: {
@@ -47,7 +42,6 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
   useEffect(() => {
     fetchProducts();
-    fetchCategories();
   }, []);
 
   const fetchProducts = async () => {
@@ -56,8 +50,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+        .order('name', { ascending: true });
 
       if (error) {
         console.error('Error fetching products:', error);
@@ -74,33 +67,12 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
     }
   };
 
-  const fetchCategories = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('category')
-        .eq('is_active', true);
-
-      if (error) {
-        console.error('Error fetching categories:', error);
-        return;
-      }
-
-      const uniqueCategories = [...new Set(data.map(item => item.category))].filter(Boolean);
-      setCategories(uniqueCategories);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
-
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.category.toLowerCase().includes(searchTerm.toLowerCase());
+                         product.type?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
-    
-    return matchesSearch && matchesCategory;
+    return matchesSearch;
   });
 
   if (loading) {
@@ -136,14 +108,13 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
         />
       </div>
 
-      {/* Category Filter */}
-      <CategoryFilter
-        categories={categories}
-        selectedCategory={categoryFilter}
-        onCategoryChange={setCategoryFilter}
-        productCount={filteredProducts.length}
-        currentLanguage={currentLanguage}
-      />
+      {/* Results Summary */}
+      <div className="text-sm text-gray-600">
+        {currentLanguage === 'en' ? 
+          `${filteredProducts.length} product${filteredProducts.length !== 1 ? 's' : ''} found` :
+          `Bidhaa ${filteredProducts.length} zimepatikana`
+        }
+      </div>
 
       {/* Products Grid */}
       {filteredProducts.length === 0 ? (
@@ -159,7 +130,6 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
             <ProductCard
               key={product.id}
               product={product}
-              onAddToCart={onAddToCart}
               onViewDetails={onViewDetails}
             />
           ))}
