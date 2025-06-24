@@ -86,6 +86,59 @@ export type Database = {
         }
         Relationships: []
       }
+      documents: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          file_name: string
+          file_size: number | null
+          file_type: string
+          file_url: string
+          id: string
+          is_active: boolean | null
+          title: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_size?: number | null
+          file_type: string
+          file_url: string
+          id?: string
+          is_active?: boolean | null
+          title: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_size?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          is_active?: boolean | null
+          title?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
