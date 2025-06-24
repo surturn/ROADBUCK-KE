@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
 import { ProductGrid } from '@/components/products/ProductGrid';
 import { Button } from '@/components/ui/button';
@@ -118,9 +118,11 @@ export const Home: React.FC = () => {
               <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
                 {t.hero.subtitle}
               </p>
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
-                {t.hero.cta}
-              </Button>
+              <Link to="/products">
+                <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
+                  {t.hero.cta}
+                </Button>
+              </Link>
             </div>
           </div>
         </section>

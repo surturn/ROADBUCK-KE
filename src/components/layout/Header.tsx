@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -26,6 +27,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const { user, profile, signOut } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     const { error } = await signOut();
@@ -33,6 +35,7 @@ export const Header: React.FC<HeaderProps> = ({
       toast.error('Error signing out');
     } else {
       toast.success('Signed out successfully');
+      navigate('/');
     }
   };
 
@@ -67,15 +70,23 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-blue-600">ROADBUCK</h1>
-            <span className="ml-2 text-sm text-gray-500">Kenya</span>
+            <Link to="/" className="flex items-center">
+              <h1 className="text-2xl font-bold text-blue-600">ROADBUCK</h1>
+              <span className="ml-2 text-sm text-gray-500">Kenya</span>
+            </Link>
           </div>
 
           {/* Navigation */}
           <nav className="hidden md:flex space-x-8">
-            <Button variant="ghost">{t.products}</Button>
-            <Button variant="ghost">{t.about}</Button>
-            <Button variant="ghost">{t.contact}</Button>
+            <Link to="/products">
+              <Button variant="ghost">{t.products}</Button>
+            </Link>
+            <Link to="/about">
+              <Button variant="ghost">{t.about}</Button>
+            </Link>
+            <Link to="/contact">
+              <Button variant="ghost">{t.contact}</Button>
+            </Link>
           </nav>
 
           {/* Right side actions */}
