@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +21,7 @@ export const AddProductForm: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -31,20 +31,17 @@ export const AddProductForm: React.FC = () => {
     }));
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const validateAndSetFile = (file: File) => {
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
-      return;
+      return false;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Image size must be less than 5MB');
-      return;
+      return false;
     }
 
     setSelectedFile(file);
@@ -55,6 +52,37 @@ export const AddProductForm: React.FC = () => {
       setImagePreview(e.target?.result as string);
     };
     reader.readAsDataURL(file);
+    return true;
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    validateAndSetFile(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    const imageFile = files.find(file => file.type.startsWith('image/'));
+    
+    if (imageFile) {
+      validateAndSetFile(imageFile);
+    } else {
+      toast.error('Please drop an image file');
+    }
   };
 
   const removeSelectedFile = () => {
@@ -228,9 +256,20 @@ export const AddProductForm: React.FC = () => {
             <Label>Product Image</Label>
             <div className="space-y-2">
               {!selectedFile && !imagePreview && (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <div 
+                  className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                    isDragOver 
+                      ? 'border-blue-400 bg-blue-50' 
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
                   <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600 mb-2">Upload an image or use URL above</p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    Drag and drop an image here, or click to select
+                  </p>
                   <Input
                     type="file"
                     accept="image/*"
