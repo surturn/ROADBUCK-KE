@@ -29,7 +29,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <svg class="h-12 w-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
             </svg>
-            <p class="text-sm">Image failed to load</p>
+            <p class="text-sm">Failed to load image</p>
           </div>
         </div>
       `;
@@ -40,18 +40,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     console.log('Image loaded successfully:', product.Image_url);
   };
 
-  // Check if we have a valid image URL
+  // Check if we have a valid image URL - more comprehensive validation
   const hasValidImageUrl = product.Image_url && 
     product.Image_url.trim() !== '' && 
+    product.Image_url !== 'null' && 
+    product.Image_url !== 'undefined' &&
     (product.Image_url.startsWith('http://') || 
      product.Image_url.startsWith('https://') ||
      product.Image_url.startsWith('/'));
 
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="h-full flex flex-col shadow-sm hover:shadow-md transition-shadow">
       {/* Product Image */}
-      {hasValidImageUrl ? (
-        <div className="aspect-video w-full overflow-hidden rounded-t-lg">
+      <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-gray-50">
+        {hasValidImageUrl ? (
           <img
             src={product.Image_url}
             alt={product.Name || 'Product image'}
@@ -60,20 +62,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             onLoad={handleImageLoad}
             loading="lazy"
           />
-        </div>
-      ) : (
-        <div className="aspect-video w-full bg-gray-100 flex items-center justify-center rounded-t-lg">
-          <div className="text-center text-gray-400">
-            <Image className="h-12 w-12 mx-auto mb-2" />
-            <p className="text-sm">No image available</p>
-            {product.Image_url && (
-              <p className="text-xs mt-1 px-2">
-                URL: {product.Image_url.substring(0, 30)}...
-              </p>
-            )}
+        ) : (
+          <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+            <div className="text-center text-gray-400">
+              <Image className="h-12 w-12 mx-auto mb-2" />
+              <p className="text-sm">No image available</p>
+              {product.Image_url && product.Image_url !== 'null' && product.Image_url !== 'undefined' && (
+                <p className="text-xs mt-1 px-2 break-all">
+                  URL: {product.Image_url.substring(0, 40)}...
+                </p>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <CardHeader className="p-4">
         <div className="flex justify-between items-start">

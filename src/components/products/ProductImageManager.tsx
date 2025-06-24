@@ -5,7 +5,7 @@ import { ProductImageUpload } from './ProductImageUpload';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Image as ImageIcon } from 'lucide-react';
+import { Search, Image as ImageIcon, RefreshCw } from 'lucide-react';
 import { Tables } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
 
@@ -34,30 +34,43 @@ export const ProductImageManager: React.FC<ProductImageManagerProps> = ({ onImag
         .order('Name', { ascending: true });
 
       if (error) {
+        console.error('Error fetching products:', error);
         toast.error('Failed to load products');
         return;
       }
 
+      console.log('Fetched products:', data);
       setProducts(data || []);
     } catch (error) {
+      console.error('Error fetching products:', error);
       toast.error('Failed to load products');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleImageUploaded = (productId: string, imageUrl: string) => {
+  const handleImageUploaded = async (productId: string, imageUrl: string) => {
+    console.log('Image uploaded for product:', productId, 'URL:', imageUrl);
+    
+    // Update the local state immediately
     setProducts(prev => prev.map(product => 
       product.id === productId 
         ? { ...product, Image_url: imageUrl }
         : product
     ));
-    setSelectedProduct(null);
+    
+    // Update selected product if it's the one being edited
+    if (selectedProduct?.id === productId) {
+      setSelectedProduct(prev => prev ? { ...prev, Image_url: imageUrl } : null);
+    }
     
     // Notify parent component that an image was updated
     if (onImageUpdated) {
       onImageUpdated();
     }
+    
+    // Refresh products data to make sure we have the latest
+    await fetchProducts();
     
     toast.success('Image uploaded and product updated successfully!');
   };
@@ -80,12 +93,22 @@ export const ProductImageManager: React.FC<ProductImageManagerProps> = ({ onImag
     <div className="space-y-6">
       {selectedProduct ? (
         <div className="space-y-4">
-          <Button 
-            variant="outline" 
-            onClick={() => setSelectedProduct(null)}
-          >
-            ← Back to Product List
-          </Button>
+          <div className="flex items-center justify-between">
+            <Button 
+              variant="outline" 
+              onClick={() => setSelectedProduct(null)}
+            >
+              ← Back to Product List
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={fetchProducts}
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh
+            </Button>
+          </div>
           
           <ProductImageUpload
             productId={selectedProduct.id}
@@ -93,12 +116,63 @@ export const ProductImageManager: React.FC<ProductImageManagerProps> = ({ onImag
             currentImageUrl={selectedProduct.Image_url || undefined}
             onImageUploaded={(imageUrl) => handleImageUploaded(selectedProduct.id, imageUrl)}
           />
+          
+          {/* Show current product info with image preview */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Current Product Info</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-start space-x-4">
+                <div className="w-32 h-32 bg-gray-100 rounded flex items-center justify-center flex-shrink-0">
+                  {selectedProduct.Image_url && selectedProduct.Image_url.startsWith('http') ? (
+                    <img 
+                      src={selectedProduct.Image_url} 
+                      alt={selectedProduct.Name || ''} 
+                      className="w-full h-full object-cover rounded"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        target.parentElement!.innerHTML = '<div class="text-gray-400 flex items-center justify-center w-full h-full"><svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/></svg></div>';
+                      }}
+                    />
+                  ) : (
+                    <ImageIcon className="w-8 h-8 text-gray-400" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-lg">{selectedProduct.Name}</h3>
+                  <p className="text-sm text-gray-600 mb-2">{selectedProduct.Type}</p>
+                  <p className="text-sm text-gray-700">{selectedProduct.Description || 'No description'}</p>
+                  <div className="mt-2">
+                    <p className="text-xs text-gray-500">
+                      Image URL: {selectedProduct.Image_url ? (
+                        <a href={selectedProduct.Image_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline break-all">
+                          {selectedProduct.Image_url}
+                        </a>
+                      ) : 'No image'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       ) : (
         <>
           <Card>
             <CardHeader>
-              <CardTitle>Manage Product Images</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Manage Product Images</CardTitle>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={fetchProducts}
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Refresh
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -112,11 +186,15 @@ export const ProductImageManager: React.FC<ProductImageManagerProps> = ({ onImag
                   />
                 </div>
 
-                <div className="grid gap-4">
+                <div className="text-sm text-gray-600">
+                  {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
+                </div>
+
+                <div className="grid gap-4 max-h-96 overflow-y-auto">
                   {filteredProducts.map(product => (
-                    <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
+                    <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                      <div className="flex items-center space-x-4 flex-1">
+                        <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center flex-shrink-0">
                           {product.Image_url && product.Image_url.startsWith('http') ? (
                             <img 
                               src={product.Image_url} 
@@ -125,28 +203,35 @@ export const ProductImageManager: React.FC<ProductImageManagerProps> = ({ onImag
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 target.style.display = 'none';
-                                target.parentElement!.innerHTML = '<div class="text-gray-400"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/></svg></div>';
+                                target.parentElement!.innerHTML = '<div class="text-gray-400 flex items-center justify-center w-full h-full"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/></svg></div>';
                               }}
                             />
                           ) : (
                             <ImageIcon className="w-6 h-6 text-gray-400" />
                           )}
                         </div>
-                        <div>
-                          <h3 className="font-medium">{product.Name}</h3>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium truncate">{product.Name}</h3>
                           <p className="text-sm text-gray-600">{product.Type}</p>
                           <p className="text-xs text-gray-500">
                             {product.Image_url ? (
-                              product.Image_url.startsWith('http') ? 'Has image' : 'Invalid URL'
-                            ) : 'No image'}
+                              product.Image_url.startsWith('http') ? (
+                                <span className="text-green-600">✓ Has image</span>
+                              ) : (
+                                <span className="text-red-600">✗ Invalid URL</span>
+                              )
+                            ) : (
+                              <span className="text-gray-400">No image</span>
+                            )}
                           </p>
                         </div>
                       </div>
                       <Button
                         onClick={() => setSelectedProduct(product)}
                         size="sm"
+                        variant="outline"
                       >
-                        Upload Image
+                        Manage Image
                       </Button>
                     </div>
                   ))}
