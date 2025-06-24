@@ -21,23 +21,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     <Card className="h-full flex flex-col">
       <CardHeader className="p-4">
         <div className="flex justify-between items-start">
-          <CardTitle className="text-lg line-clamp-2">{product.name}</CardTitle>
-          {product.type && (
+          <CardTitle className="text-lg line-clamp-2">{product.Name}</CardTitle>
+          {product.Type && (
             <Badge variant="outline" className="ml-2 flex-shrink-0">
-              {product.type}
+              {product.Type}
             </Badge>
           )}
         </div>
       </CardHeader>
       
       <CardContent className="p-4 pt-0 flex-grow">
-        {product.description && (
+        {product.Description && (
           <p className="text-sm text-gray-700 line-clamp-4">
-            {product.description}
+            {product.Description}
           </p>
         )}
         
-        {!product.description && (
+        {!product.Description && (
           <div className="flex items-center justify-center h-20 text-gray-400">
             <Info className="h-8 w-8 mb-2" />
             <p className="text-sm">No description available</p>

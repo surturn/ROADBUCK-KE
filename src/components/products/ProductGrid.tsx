@@ -50,7 +50,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .order('name', { ascending: true });
+        .order('Name', { ascending: true });
 
       if (error) {
         console.error('Error fetching products:', error);
@@ -68,9 +68,9 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   };
 
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.type?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = product.Name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         product.Description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         product.Type?.toLowerCase().includes(searchTerm.toLowerCase());
     
     return matchesSearch;
   });

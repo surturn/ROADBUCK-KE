@@ -355,22 +355,25 @@ export type Database = {
       }
       products: {
         Row: {
-          description: string | null
+          Description: string | null
           id: string
-          name: string
-          type: string | null
+          Image_url: string | null
+          Name: string | null
+          Type: string | null
         }
         Insert: {
-          description?: string | null
+          Description?: string | null
           id?: string
-          name: string
-          type?: string | null
+          Image_url?: string | null
+          Name?: string | null
+          Type?: string | null
         }
         Update: {
-          description?: string | null
+          Description?: string | null
           id?: string
-          name?: string
-          type?: string | null
+          Image_url?: string | null
+          Name?: string | null
+          Type?: string | null
         }
         Relationships: []
       }
