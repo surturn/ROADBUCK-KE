@@ -4,16 +4,17 @@ import { Header } from '@/components/layout/Header';
 import { ProductGrid } from '@/components/products/ProductGrid';
 import { BulkProductImport } from '@/components/products/BulkProductImport';
 import { AddProductForm } from '@/components/products/AddProductForm';
+import { ProductImageManager } from '@/components/products/ProductImageManager';
 import { Button } from '@/components/ui/button';
 import { Tables } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
-import { Upload, Grid, Plus } from 'lucide-react';
+import { Upload, Grid, Plus, ImageIcon } from 'lucide-react';
 
 type Product = Tables<'products'>;
 
 export const Products: React.FC = () => {
   const [currentLanguage, setCurrentLanguage] = useState<'en' | 'sw'>('en');
-  const [activeView, setActiveView] = useState<'products' | 'import' | 'add'>('products');
+  const [activeView, setActiveView] = useState<'products' | 'import' | 'add' | 'images'>('products');
 
   const handleViewDetails = (product: Product) => {
     toast.info('Product details feature coming soon!');
@@ -30,14 +31,16 @@ export const Products: React.FC = () => {
       subtitle: 'Browse our complete catalog of products',
       importProducts: 'Import Products',
       viewProducts: 'View Products',
-      addProduct: 'Add Product'
+      addProduct: 'Add Product',
+      manageImages: 'Manage Images'
     },
     sw: {
       title: 'Bidhaa Zetu',
       subtitle: 'Angalia katalogi yetu kamili ya bidhaa',
       importProducts: 'Leta Bidhaa',
       viewProducts: 'Angalia Bidhaa',
-      addProduct: 'Ongeza Bidhaa'
+      addProduct: 'Ongeza Bidhaa',
+      manageImages: 'Simamia Picha'
     }
   };
 
@@ -79,6 +82,14 @@ export const Products: React.FC = () => {
                 {t.addProduct}
               </Button>
               <Button
+                onClick={() => setActiveView('images')}
+                variant={activeView === 'images' ? "default" : "outline"}
+                className="flex items-center gap-2"
+              >
+                <ImageIcon className="h-4 w-4" />
+                {t.manageImages}
+              </Button>
+              <Button
                 onClick={() => setActiveView('import')}
                 variant={activeView === 'import' ? "default" : "outline"}
                 className="flex items-center gap-2"
@@ -96,6 +107,7 @@ export const Products: React.FC = () => {
             />
           )}
           {activeView === 'add' && <AddProductForm />}
+          {activeView === 'images' && <ProductImageManager />}
           {activeView === 'import' && <BulkProductImport />}
         </div>
       </main>
