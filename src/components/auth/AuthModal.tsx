@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -6,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AuthModalProps {
   open: boolean;
@@ -34,15 +33,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
 
     try {
       const { error } = await signIn(formData.email, formData.password);
-      if (error) {
-        toast.error(error.message);
-      } else {
+      if (error) toast.error(error.message);
+      else {
         toast.success('Welcome back!');
         onOpenChange(false);
-        setFormData({ email: '', password: '', fullName: '', gdprConsent: false });
       }
-    } catch (error) {
-      toast.error('An unexpected error occurred');
+    } catch {
+      toast.error('Unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -50,25 +47,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.gdprConsent) {
-      toast.error('Please accept our privacy policy to continue');
-      return;
-    }
+    if (!formData.gdprConsent) return toast.error('Please accept the policy');
 
     setLoading(true);
-
     try {
       const { error } = await signUp(formData.email, formData.password, formData.fullName);
-      if (error) {
-        toast.error(error.message);
-      } else {
-        toast.success('Account created! Please check your email to verify your account.');
+      if (error) toast.error(error.message);
+      else {
+        toast.success('Check your email to confirm your account.');
         onOpenChange(false);
-        setFormData({ email: '', password: '', fullName: '', gdprConsent: false });
       }
-    } catch (error) {
-      toast.error('An unexpected error occurred');
+    } catch {
+      toast.error('Unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -80,29 +70,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
         <DialogHeader>
           <DialogTitle>Welcome to ROADBUCK Kenya</DialogTitle>
         </DialogHeader>
-        
-        <Tabs defaultValue="signin" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+
+        <Tabs defaultValue="signin">
+          <TabsList className="grid grid-cols-2">
             <TabsTrigger value="signin">Sign In</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="signin" className="space-y-4">
+
+          <TabsContent value="signin">
             <form onSubmit={handleSignIn} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="signin-email">Email</Label>
+              <div>
+                <Label>Email</Label>
                 <Input
-                  id="signin-email"
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   required
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="signin-password">Password</Label>
+              <div>
+                <Label>Password</Label>
                 <Input
-                  id="signin-password"
                   type="password"
                   value={formData.password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
@@ -114,37 +102,33 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
               </Button>
             </form>
           </TabsContent>
-          
-          <TabsContent value="signup" className="space-y-4">
+
+          <TabsContent value="signup">
             <form onSubmit={handleSignUp} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="signup-name">Full Name</Label>
+              <div>
+                <Label>Full Name</Label>
                 <Input
-                  id="signup-name"
                   type="text"
                   value={formData.fullName}
                   onChange={(e) => handleInputChange('fullName', e.target.value)}
                   required
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="signup-email">Email</Label>
+              <div>
+                <Label>Email</Label>
                 <Input
-                  id="signup-email"
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   required
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="signup-password">Password</Label>
+              <div>
+                <Label>Password</Label>
                 <Input
-                  id="signup-password"
                   type="password"
                   value={formData.password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
-                  minLength={6}
                   required
                 />
               </div>
@@ -152,10 +136,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
                 <Checkbox
                   id="gdpr-consent"
                   checked={formData.gdprConsent}
-                  onCheckedChange={(checked) => handleInputChange('gdprConsent', checked)}
+                  onCheckedChange={(checked) => handleInputChange('gdprConsent', !!checked)}
                 />
                 <Label htmlFor="gdpr-consent" className="text-sm">
-                  I accept the privacy policy and terms of service
+                  I accept the privacy policy and terms
                 </Label>
               </div>
               <Button type="submit" className="w-full" disabled={loading || !formData.gdprConsent}>

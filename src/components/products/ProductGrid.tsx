@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ProductCard } from './ProductCard';
@@ -43,67 +42,52 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      console.log('Fetching fresh product data...');
-      
-      // Force fresh data by adding timestamp to prevent caching
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .order('Name', { ascending: true });
+        .order('name', { ascending: true });
 
       if (error) {
-        console.error('Error fetching products:', error);
         toast.error(currentLanguage === 'en' ? 'Failed to load products' : 'Imeshindwa kupakia bidhaa');
         return;
       }
 
-      console.log('Fetched products:', data);
       setProducts(data || []);
     } catch (error) {
-      console.error('Error fetching products:', error);
       toast.error(currentLanguage === 'en' ? 'Failed to load products' : 'Imeshindwa kupakia bidhaa');
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch products on mount and whenever the component key changes
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  // Set up real-time subscription to product changes
   useEffect(() => {
-    console.log('Setting up real-time subscription for products');
-    
     const channel = supabase
       .channel('product-changes')
       .on(
         'postgres_changes',
         {
-          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          event: '*',
           schema: 'public',
           table: 'products'
         },
-        (payload) => {
-          console.log('Real-time update received:', payload);
-          // Refresh data when any product changes
-          fetchProducts();
-        }
+        () => fetchProducts()
       )
       .subscribe();
 
     return () => {
-      console.log('Cleaning up real-time subscription');
       supabase.removeChannel(channel);
     };
   }, []);
 
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.Name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.Description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.Type?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+    const matchesSearch = product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         product.type?.toLowerCase().includes(searchTerm.toLowerCase());
+
     return matchesSearch;
   });
 
@@ -129,7 +113,6 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Search Bar and Refresh Button */}
       <div className="flex gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -151,7 +134,6 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
         </Button>
       </div>
 
-      {/* Results Summary */}
       <div className="text-sm text-gray-600">
         {currentLanguage === 'en' ? 
           `${filteredProducts.length} product${filteredProducts.length !== 1 ? 's' : ''} found` :
@@ -159,7 +141,6 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
         }
       </div>
 
-      {/* Products Grid */}
       {filteredProducts.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg">{t.noProducts}</p>
