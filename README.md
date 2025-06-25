@@ -1,73 +1,133 @@
-# Welcome to your Lovable project
+<h1 align="center">🚀 ROADBUCK Kenya Official Website</h1>
+<p align="center"><strong>Product Requirements Document (PRD)</strong></p>
+<p align="center">Prepared for <b>ROADBUCK Kenya Co. Ltd</b> | By <b>Sydney</b> | 📅 June 2025</p>
 
-## Project info
+---
 
-**URL**: https://lovable.dev/projects/45619885-a6e3-4c57-b4c4-39c194069cd2
+## 🎯 Objective
 
-## How can I edit this code?
+Design and develop a **modern**, **responsive**, and **user-friendly** website that:
 
-There are several ways of editing your application.
+- Showcases ROADBUCK Kenya's **product catalog**
+- Highlights **company values** and **services**
+- Provides seamless **contact & inquiry options**
+- Supports **B2B connections**
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/45619885-a6e3-4c57-b4c4-39c194069cd2) and start prompting.
+## 💼 Business Goals
 
-Changes made via Lovable will be committed automatically to this repo.
+✅ Increase online visibility and trust  
+✅ Provide a detailed product catalog  
+✅ Enhance customer support (forms, chatbots, scheduling)  
+✅ Generate B2B and B2C inquiries  
+✅ Share downloadable resources (manuals, brochures)  
+✅ Future-ready for full eCommerce integration  
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🧑‍💻 Target Users
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- 🧰 Automotive Garages  
+- 🚗 Car Dealers  
+- 🚛 Fleet Managers  
+- 🔧 Mechanics  
+- 🛒 Procurement Teams  
+- 🧍 Walk-in Customers  
+- 🏢 Government & Corporate Buyers  
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 📦 Core Features
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 🧭 Website Pages
 
-# Step 3: Install the necessary dependencies.
-npm i
+| 📄 **Page**           | 📝 **Description** |
+|----------------------|--------------------|
+| 🏠 **Home**           | Product highlights, value prop, CTAs |
+| 👥 **About Us**       | Story, team, “Three Strong Alliance” |
+| 🛠 **Products**        | Filterable catalog (category, specs, model) |
+| 🔍 **Product Detail** | Specs, gallery, brochures, inquiry form |
+| 🆘 **Support & Services** | 24/7 technician support, calibration |
+| 📬 **Contact Us**     | Form, map, WhatsApp, live chat |
+| 📁 **Downloads**      | Manuals, brochures, spec sheets |
+| 📰 **News & Updates** | Blog, promotions, updates *(optional)* |
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+### ⚙️ Functionality Highlights
 
-**Edit a file directly in GitHub**
+- 📱 **Mobile-responsive design**  
+- 🧠 **CMS Backend** (Strapi, WordPress, Headless)  
+- 🔍 **Searchable + Filterable** product catalog  
+- ✉️ **Inquiry Forms** (email or CRM-connected)  
+- 💬 **Live Chat** (Tawk.to, WhatsApp)  
+- 🌐 **SEO-Optimized** & multilingual-ready  
+- 📊 **Analytics** (GA4, Meta Pixel, etc.)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## 🛠️ Technical Requirements
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+| 🔧 Feature    | 📋 Description |
+|--------------|----------------|
+| 🖥️ **Frontend** | React, Next.js, or static HTML/CSS |
+| 🧪 **Backend** | Node.js, Laravel, or Headless CMS (optional) |
+| ☁️ **Hosting** | Hostinger, DigitalOcean, or local VPS |
+| 🌍 **Domain** | `www.roadbuck.co.ke` |
+| 🔐 **Security** | SSL, CAPTCHA, basic firewall |
+| ⚡ **Performance** | Image optimization, CDN, lazy loading |
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## 🎨 Design Guidelines
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- 🧼 **Clean**, modern, and minimal layout  
+- 🎨 **Colors**: Black, Red, Grey (Brand theme)  
+- 🔤 **Fonts**: Roboto, Montserrat, or similar  
+- 🏭 **Style**: Industrial yet professional  
+- 📸 Real equipment photos + icons  
+- 🌙 Optional Dark Mode support
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/45619885-a6e3-4c57-b4c4-39c194069cd2) and click on Share -> Publish.
+## 📅 Estimated Timeline
 
-## Can I connect a custom domain to my Lovable project?
+| 📌 Phase         | ⏳ Duration  | 📝 Notes |
+|------------------|--------------|----------|
+| 🔍 Discovery      | 1 week       | Wireframes, branding, planning |
+| 🎨 Design         | 1–2 weeks    | UI mockups in Figma or XD |
+| 💻 Development    | 2–3 weeks    | Frontend + CMS integration |
+| 🧪 Testing & QA   | 1 week       | Browser + mobile testing |
+| 🚀 Launch         | —            | Deploy + monitor 🚨 |
 
-Yes, you can!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 💸 Budget Estimate (Ksh)
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+| 💰 Item               | 💵 Cost Estimate |
+|-----------------------|------------------|
+| 🌐 Domain & Hosting    | ~8,000/year      |
+| 🧑‍🎨 Design & Dev       | 150,000 – 250,000 |
+| 🛠 Maintenance         | ~30,000/year     |
+
+---
+
+## 🔮 Future Features
+
+- 🛍 Full eCommerce integration  
+- 🔐 Customer login portal  
+- 📆 Technician scheduling tool  
+- 🤖 AI Chatbot (OpenAI + n8n)  
+- 📱 WhatsApp Business CRM link  
+
+---
+
+## ✅ Next Steps
+
+- 📋 Stakeholder review  
+- 🌍 Approve domain + hosting  
+- 🧱 Confirm tech stack  
+- 🧑‍🎨 Kick off design & development  
+
+---
+
+<p align="center"><strong>Let's build something powerful. 💪</strong></p>
