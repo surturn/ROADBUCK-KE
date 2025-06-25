@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { ShoppingCart, User, Menu, Globe } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { toast } from 'sonner';
 
@@ -25,17 +25,17 @@ export const Header: React.FC<HeaderProps> = ({
   currentLanguage = 'en',
   onLanguageChange 
 }) => {
-  const { user, profile, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
-    const { error } = await signOut();
-    if (error) {
-      toast.error('Error signing out');
-    } else {
+    try {
+      await signOut();
       toast.success('Signed out successfully');
       navigate('/');
+    } catch (error) {
+      toast.error('Error signing out');
     }
   };
 
@@ -130,13 +130,13 @@ export const Header: React.FC<HeaderProps> = ({
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm">
                     <User className="h-4 w-4 mr-1" />
-                    {profile?.full_name || profile?.email || 'User'}
+                    {user?.email || 'User'}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem>{t.profile}</DropdownMenuItem>
                   <DropdownMenuItem>{t.orders}</DropdownMenuItem>
-                  {profile?.role === 'admin' && (
+                  {user?.role === 'admin' && (
                     <DropdownMenuItem>{t.admin}</DropdownMenuItem>
                   )}
                   <DropdownMenuItem onClick={handleSignOut}>
