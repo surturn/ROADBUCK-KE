@@ -92,11 +92,11 @@ export const AddProductForm: React.FC = () => {
 
     try {
       const { error } = await supabase.from('products').insert({
-        name: formData.name.trim(),
-        description: formData.description.trim() || null,
-        image: file?.name || formData.image || null,
-        image_url: imageUrl || null,
-        category_id: formData.category_id
+        Name: formData.name.trim(),
+        Description: formData.description.trim() || null,
+        Image: file?.name || formData.image || null,
+        Image_url: imageUrl || null,
+        Category_id: formData.category_id
       });
 
       if (error) {
@@ -161,7 +161,7 @@ export const AddProductForm: React.FC = () => {
                 setFormData(prev => ({ ...prev, category_id: value }))
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger id="category">
                 <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
