@@ -153,19 +153,34 @@ export const AddProductForm: React.FC = () => {
             />
           </div>
 
-          <div>
-            <Label htmlFor="category">Product Category *</Label>
-            <Select value={formData.category_id} onValueChange={(value) => setFormData(prev => ({ ...prev, category_id: value }))}>
-              <SelectTrigger>
+              <div>
+              <Label htmlFor="category">Product Category *</Label>
+              <Select
+                value={formData.category_id}
+                onValueChange={(value) =>
+                setFormData(prev => ({ ...prev, category_id: value }))
+                }
+              >
+                <SelectTrigger>
                 <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map(cat => (
-                  <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+                </SelectTrigger>
+                <SelectContent>
+                {categories.length > 0 ? (
+                  categories.map(cat => (
+                  <SelectItem key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </SelectItem>
+                  ))
+                ) : (
+                  <>
+                  <SelectItem value="wheel balancer">wheel balancer</SelectItem>
+                  <SelectItem value="wheel changer">wheel changer</SelectItem>
+                  <SelectItem value="lifts">lifts</SelectItem>
+                  </>
+                )}
+                </SelectContent>
+              </Select>
+              </div>
 
           <div>
             <Label htmlFor="image">Upload Image</Label>
